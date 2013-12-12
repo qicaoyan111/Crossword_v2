@@ -41,6 +41,11 @@ public class Crossword extends Application {
 	public static final String 	NAME = "Crossword";
 	public static final int 	NOTIFICATION_DOWNLOAD_ID = 1;
 	public static boolean 		DEBUG;
+	
+	public static final String          TMPSIGN = "#";
+	public static final String          BLANK="-";
+	public static final int 			AREA_BLOCK = -1;
+	public static final int 			AREA_WRITABLE = 0;
    // public static final String  BLOCK = "#";
    // public static final String  BLANK = " ";
     private static Context context;

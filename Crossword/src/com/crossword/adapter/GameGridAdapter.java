@@ -19,10 +19,12 @@ package com.crossword.adapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 
+import com.crossword.Crossword;
 import com.crossword.R;
 import com.crossword.activity.GameActivity;
-import com.crossword.data.Moudle;
+import com.crossword.data.Module;
 import com.crossword.data.Word;
 
 import android.app.Activity;
@@ -30,6 +32,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
@@ -39,10 +42,7 @@ import android.widget.GridView;
 import android.widget.TextView;
 
 public class GameGridAdapter extends BaseAdapter {
-	public static final String          NOTHING="###";
-	public static final String          BLANK="-";
-	public static final int 			AREA_BLOCK = -1;
-	public static final int 			AREA_WRITABLE = 0;
+
 	private HashMap<Integer, TextView>	views = new HashMap<Integer, TextView>();
 	private Context						context;
 	private String[][]					area;			// Tableau représentant les lettres du joueur
@@ -52,7 +52,7 @@ public class GameGridAdapter extends BaseAdapter {
 	private int 						displayHeight;
 	private int 						width;
 	private int 						height;
-	public GameGridAdapter(Activity act, ArrayList<Word> entries, int width, int height,Moudle moudle)
+	public GameGridAdapter(Activity act, LinkedList<Word> entries, int width, int height,Module moudle)
 	{
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(act);
 		
@@ -71,8 +71,8 @@ public class GameGridAdapter extends BaseAdapter {
 	    for (Word entry: entries)
 	    {
 	    	String tmp = entry.getTmp();
-	    	String text = entry.getText();
-	    	boolean horizontal = entry.getHorizontal();
+	    	String text = entry.getCap();
+	    	boolean horizontal = entry.getHoriz();
 	    	int x = entry.getX();
 	    	int y = entry.getY();
 	    	
@@ -82,19 +82,17 @@ public class GameGridAdapter extends BaseAdapter {
 	    		{
 	    			if (y >= 0 && y < this.height && x+i >= 0 && x+i < this.width)
 	    			{
-	    				this.area[y][x+i] = tmp != null ? String.valueOf(tmp.charAt(i)) : BLANK;
-	    				this.displayArea[y][x+i] = tmp != null ? String.valueOf(tmp.charAt(i)) : BLANK;
+	    				this.area[y][x+i] = String.valueOf(tmp.charAt(i)).equals(Crossword.TMPSIGN)?Crossword.BLANK:String.valueOf(tmp.charAt(i));
+	    				this.displayArea[y][x+i] = String.valueOf(tmp.charAt(i)).equals(Crossword.TMPSIGN)?Crossword.BLANK:String.valueOf(tmp.charAt(i));
 	    				this.correctionArea[y][x+i] = String.valueOf(text.charAt(i));
-	    				if(tmp!=null) System.out.println( String.valueOf(tmp.charAt(i)));
 	    			}
 	    		}
 	    		else
 	    		{
 	    			if (y+i >= 0 && y+i < this.height && x >= 0 && x < this.width)
 	    			{
-	    				this.area[y+i][x] = tmp != null ? String.valueOf(tmp.charAt(i)) : BLANK;
-	    				this.displayArea[y+i][x] = tmp != null ? String.valueOf(tmp.charAt(i)) : BLANK;
-	    				//if(tmp!=null) System.out.println( String.valueOf(tmp.charAt(i)));
+	    				this.area[y+i][x] =  String.valueOf(tmp.charAt(i)).equals(Crossword.TMPSIGN)?Crossword.BLANK:String.valueOf(tmp.charAt(i));
+	    				this.displayArea[y+i][x] = String.valueOf(tmp.charAt(i)).equals(Crossword.TMPSIGN)?Crossword.BLANK:String.valueOf(tmp.charAt(i));
 	    				this.correctionArea[y+i][x] = String.valueOf(text.charAt(i));
 	    			}
 	    		}
@@ -111,35 +109,35 @@ public class GameGridAdapter extends BaseAdapter {
     		  // currentWord.getHorizontal();
     		  
     			   
-    			   if(moudle.isCorrect(moudle.getWord(currentWord.getX(), currentWord.getY(), currentWord.getHorizontal()).getText(),this.getWord(currentWord.getX(),currentWord.getY(),currentWord.getLength(), currentWord.getHorizontal())))
+    			   if(moudle.isCorrect(moudle.getWord(currentWord.getX(), currentWord.getY(), currentWord.getHoriz()).getCap(),this.getWord(currentWord.getX(),currentWord.getY(),currentWord.getLength(), currentWord.getHoriz())))
        		    	{
        				  for(int l = 0; l < currentWord.getLength(); l++)
        				  {
-       					if(currentWord.getHorizontal())  this.setDisValue(currentWord.getX()+l, currentWord.getY(),currentWord.getAns(l));
+       					if(currentWord.getHoriz())  this.setDisValue(currentWord.getX()+l, currentWord.getY(),currentWord.getAns(l));
        					       						
        						//gridAdapter.setValue(currentWord.getX()+l, currentWord.getY(),currentWord.getAns(l));
-            		    if(!currentWord.getHorizontal()) this.setDisValue(currentWord.getX(), currentWord.getY()+l,currentWord.getAns(l));  
+            		    if(!currentWord.getHoriz()) this.setDisValue(currentWord.getX(), currentWord.getY()+l,currentWord.getAns(l));  
        		            
        		        //    this.gridAdapter.notifyDataSetChanged();
        				  }
        		    	}
     		    if(this.isCross(currentX,currentY))
         		  {
-    			   if(moudle.isCorrect(moudle.getWord(currentX, currentY, !currentWord.getHorizontal()).getText(),
-   						this.getWord(moudle.getWord(currentX, currentY, !currentWord.getHorizontal()).getX(),moudle.getWord(currentX, currentY, !currentWord.getHorizontal()).getY(), 
-   								moudle.getWord(currentX, currentY, !currentWord.getHorizontal()).getLength(), 
-   								moudle.getWord(currentX, currentY, !currentWord.getHorizontal()).getHorizontal())))
+    			   if(moudle.isCorrect(moudle.getWord(currentX, currentY, !currentWord.getHoriz()).getCap(),
+   						this.getWord(moudle.getWord(currentX, currentY, !currentWord.getHoriz()).getX(),moudle.getWord(currentX, currentY, !currentWord.getHoriz()).getY(), 
+   								moudle.getWord(currentX, currentY, !currentWord.getHoriz()).getLength(), 
+   								moudle.getWord(currentX, currentY, !currentWord.getHoriz()).getHoriz())))
 	   		    	{
-	   				  for(int l = 0; l < moudle.getWord(currentX, currentY, !currentWord.getHorizontal()).getLength(); l++)
+	   				  for(int l = 0; l < moudle.getWord(currentX, currentY, !currentWord.getHoriz()).getLength(); l++)
 	   				    {
-	   						if(!currentWord.getHorizontal()) 
+	   						if(!currentWord.getHoriz()) 
 	   						{
-	   							this.setDisValue(moudle.getWord(currentX, currentY, !currentWord.getHorizontal()).getX()+l,moudle.getWord(currentX, currentY, !currentWord.getHorizontal()).getY(),moudle.getWord(currentX, currentY, !currentWord.getHorizontal()).getAns(l));
+	   							this.setDisValue(moudle.getWord(currentX, currentY, !currentWord.getHoriz()).getX()+l,moudle.getWord(currentX, currentY, !currentWord.getHoriz()).getY(),moudle.getWord(currentX, currentY, !currentWord.getHoriz()).getAns(l));
 	   						  //  System.out.println("x:"+(currentX+l)+"y:"+currentY);
 	   						}
-	   						if(currentWord.getHorizontal())
+	   						if(currentWord.getHoriz())
 	   		            	{
-	   		            	this.setDisValue(moudle.getWord(currentX, currentY, !currentWord.getHorizontal()).getX(),moudle.getWord(currentX, currentY, !currentWord.getHorizontal()).getY()+l,moudle.getWord(currentX, currentY, !currentWord.getHorizontal()).getAns(l));  
+	   		            	this.setDisValue(moudle.getWord(currentX, currentY, !currentWord.getHoriz()).getX(),moudle.getWord(currentX, currentY, !currentWord.getHoriz()).getY()+l,moudle.getWord(currentX, currentY, !currentWord.getHoriz()).getAns(l));  
 	   		            	// System.out.println("x:"+currentX+"y:"+(currentY+l));
 	   		            	}
 	   		            }
@@ -174,8 +172,7 @@ public class GameGridAdapter extends BaseAdapter {
 		TextView v = this.views.get(position);
 		int y = (int)(position / this.width); 
 		int x = (int)(position % this.width);
-		String data = this.displayArea[y][x]!=BLANK?this.displayArea[y][x]:" ";
-		
+		String data = this.displayArea[y][x]!=Crossword.BLANK?this.displayArea[y][x]:" ";
 		String correction = this.correctionArea[y][x];
 		
 		// Creation du composant
@@ -188,10 +185,10 @@ public class GameGridAdapter extends BaseAdapter {
 
 			if (data != null) {
 				v.setBackgroundResource(R.drawable.area_empty);
-				v.setTag(AREA_WRITABLE);
+				v.setTag(Crossword.AREA_WRITABLE);
 			} else {
 				v.setBackgroundResource(R.drawable.area_block1);
-				v.setTag(AREA_BLOCK);
+				v.setTag(Crossword.AREA_BLOCK);
 			}
 			
 			this.views.put(position, v);

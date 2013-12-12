@@ -24,26 +24,22 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import org.xml.sax.helpers.DefaultHandler;
-
 import com.crossword.Crossword;
-import com.crossword.CrosswordException;
 import com.crossword.R;
-import com.crossword.SAXFileHandler;
 import com.crossword.keyboard.KeyboardView;
 import com.crossword.keyboard.KeyboardViewInterface;
-import com.crossword.parser.CrosswordParser;
-import com.crossword.parser.GridParser;
 import com.crossword.adapter.GameGridAdapter;
 import com.crossword.data.Grid;
-import com.crossword.data.Moudle;
+import com.crossword.data.Module;
 import com.crossword.data.Word;
-
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.Menu;
@@ -68,13 +64,13 @@ public class GameActivity extends CrosswordParentActivity implements OnTouchList
 	private KeyboardView 	keyboardView;
 	private GameGridAdapter gridAdapter;
 	private TextView 		txtDescription;
-	private Moudle			moudle;
+	private Module			module;
 	private TextView        txtDescriptionHor;
 	private TextView        txtDescriptionVer;
 	private TextView 		keyboardOverlay;
  
 	private Grid			grid;
-	private ArrayList<Word> entries;		// Liste des mots
+	private LinkedList<Word> entries;		// Liste des mots
 	private ArrayList<View>	selectedArea = new ArrayList<View>(); // Liste des cases selectionn茅es
 
 	private boolean			downIsPlayable;	// false si le joueur 脿 appuy茅 sur une case noire 
@@ -105,99 +101,51 @@ public class GameActivity extends CrosswordParentActivity implements OnTouchList
         inflater.inflate(R.menu.crossword, menu);
         return true;
     }
-  /*  
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-    	MenuItem itemCheck = menu.findItem(R.id.menu_check);
-    	MenuItem itemSolve = menu.findItem(R.id.menu_solve);
-    	itemCheck.setIcon(preferences.getBoolean("grid_check", false) ? R.drawable.ic_menu_check_enable : R.drawable.ic_menu_check);
-    	itemSolve.setIcon(currentMode == GRID_MODE.SOLVE ? R.drawable.ic_menu_solve_enable : R.drawable.ic_menu_solve);
-		return true;
-    }
 
-	@Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        switch (item.getItemId()) {
-        case R.id.menu_check:
-    		boolean checked = !preferences.getBoolean("grid_check", false);
-    		preferences.edit().putBoolean("grid_check", checked).commit();
-        	if (currentMode != GRID_MODE.SOLVE) {
-        		currentMode = checked ? GRID_MODE.CHECK : GRID_MODE.NORMAL;
-        	}
-        	this.gridAdapter.notifyDataSetChanged();
-        	return true;
-        case R.id.menu_solve:
-        	if (currentMode == GRID_MODE.SOLVE)
-        		currentMode = (preferences.getBoolean("grid_check", false) ? GRID_MODE.CHECK : GRID_MODE.NORMAL);
-        	else
-        		currentMode = GRID_MODE.SOLVE;
-        	this.gridAdapter.notifyDataSetChanged();
-        	return true;
-        case R.id.menu_grid:
-        	Intent intent = new Intent(this, GridActivity.class);
-    		intent.putExtra("grid", grid);
-        	startActivity(intent);
-        	return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-	*/
 	@Override
 	public void onPause()
 	{
-		save();
+	
 		super.onPause();
 	}
-	/*
-	@Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	super.onActivityResult(requestCode, resultCode, data);
-    	switch (requestCode) {
-    	case Crossword.REQUEST_PREFERENCES:
-    		if (Crossword.DEBUG) Toast.makeText(this, "PREFERENCES_UPDATED", Toast.LENGTH_SHORT).show();
-    		readPreferences();
-    		this.gridAdapter.setLower(this.gridIsLower);
-    		this.gridAdapter.notifyDataSetChanged();
-        	break;
-    	}
-	}
-
-	private void readPreferences() {
-		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		this.solidSelection = preferences.getBoolean("solid_selection", false);
-		this.gridIsLower = preferences.getBoolean("grid_is_lower", false);
-		if (currentMode != GRID_MODE.SOLVE)
-			currentMode = preferences.getBoolean("grid_check", false) ? GRID_MODE.CHECK : GRID_MODE.NORMAL;
-		
-	}
-*/
+	
 	public void onCreate(Bundle savedInstanceState)
 	{
 	    super.onCreate(savedInstanceState);
 	    setContentView(R.layout.game);
-	    moudle = new Moudle();
+	    module = new Module();
+	    this.filename = "basic001.json";
+	    this.grid = module.parseGrid(this, this.filename);
+	    if (this.grid == null) {
+	    	finish();
+	    	return;
+	    }
+
+	    this.entries= module.getEntry();
+	    if (this.entries == null) {
+	    	finish();
+	    	return;
+	    }
 		//readPreferences();	    
 		//开始根据点击的关卡获取获取到的文件名称，来找到相应的xml文件并且解析
-	    try {
+	  /*  try {
 		    //this.filename = getIntent().getExtras().getString("filename");
 		    
-	    	this.filename = "basic002.xml";
+	    	
 			File file = new File(String.format(Crossword.GRID_LOCAL_PATH, this.filename));
 			//Toast.makeText(this, String.format(Crossword.GRID_LOCAL_PATH, this.filename), Toast.LENGTH_SHORT).show();
 			if (file.exists())
 			{
 				// Get grid meta informations (name, author, date, level)
-				GridParser gridParser = new GridParser();
-				SAXFileHandler.read((DefaultHandler)gridParser, String.format(Crossword.GRID_LOCAL_PATH, this.filename));
-				this.grid = gridParser.getData();
+				//GridParser gridParser = new GridParser();
+				//SAXFileHandler.read((DefaultHandler)gridParser, String.format(Crossword.GRID_LOCAL_PATH, this.filename));
+				//this.grid = gridParser.getData();
 			    if (this.grid == null) {
 			    	finish();
 			    	return;
 			    }
 
-			    this.entries= moudle.getentry(this.filename);
+			    this.entries= module.getEntry();
 			    if (this.entries == null) {
 			    	finish();
 			    	return;
@@ -215,7 +163,7 @@ public class GameActivity extends CrosswordParentActivity implements OnTouchList
 			Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
 			e.printStackTrace();
 		}
-	    
+	    */
 	    this.width = this.grid.getWidth();
 	    this.height = this.grid.getHeight();
         this.lastX = -1;
@@ -232,7 +180,7 @@ public class GameActivity extends CrosswordParentActivity implements OnTouchList
         gridParams.height = height - keyboardHeight - this.txtDescriptionHor.getLayoutParams().height;
         this.gridView.setLayoutParams(gridParams);
         this.gridView.setVerticalScrollBarEnabled(false);
-		this.gridAdapter = new GameGridAdapter(this, this.entries, this.width, this.height,moudle);
+		this.gridAdapter = new GameGridAdapter(this, this.entries, this.width, this.height,module);
 		this.gridView.setAdapter(this.gridAdapter);
 
         this.keyboardView = (KeyboardView)findViewById(R.id.keyboard);
@@ -253,9 +201,9 @@ public class GameActivity extends CrosswordParentActivity implements OnTouchList
             {
             	int position = this.gridView.pointToPosition((int)event.getX(), (int)event.getY());
             	View child = this.gridView.getChildAt(position);
-
+                
             	// Si pas de mot sur cette case (= case noire), aucun traitement
-            	if (child == null || child.getTag().equals(GameGridAdapter.AREA_BLOCK)) {
+            	if (child == null || child.getTag().equals(Crossword.AREA_BLOCK)) {
             		if (this.solidSelection == false) {
                         clearSelection();
                     	this.gridAdapter.notifyDataSetChanged();
@@ -290,7 +238,8 @@ public class GameActivity extends CrosswordParentActivity implements OnTouchList
                 int y = position / this.width;
                 System.out.println("ACTION_DOWN, x:" + x + ", y:" + y + ", position: " + position);
                 //判断输入方向
-                
+                if(x < 0 || x >= this.width || y < 0 || y>= this.height)
+                	return false;
                 this.horizontal = (lastY == y && Math.abs(lastX - x)>0 || (lastX == -1 && lastY == -1))?true:false;
                 this.horizontal = (lastX == x && Math.abs(lastY - y)>0)?false:true;
                 this.lastX = x;//获取上一次的横向位置
@@ -298,17 +247,17 @@ public class GameActivity extends CrosswordParentActivity implements OnTouchList
                 this.currentX = x;
             	this.currentY = y;
             	this.isCross = this.gridAdapter.isCross(currentX, currentY);
-            	currentWord = moudle.getWord(currentX,currentY,this.horizontal);
+            	currentWord = module.getWord(currentX,currentY,this.horizontal);
               
         	    if (this.currentWord == null)
         	    	break;
-        	    this.horizontal = this.currentWord.getHorizontal();
+        	    this.horizontal = this.currentWord.getHoriz();
         	  //在设置背景之前先重绘一遍
         		this.gridAdapter.reDrawGridBackground(this.gridView);
                 if(isCross){
                 	
-                	this.currentWordHor = moudle.getWord(x, y, true);
-                	this.currentWordVer = moudle.getWord(x, y, false);
+                	this.currentWordHor = module.getWord(x, y, true);
+                	this.currentWordVer = module.getWord(x, y, false);
                 	this.setWordBackground(this.currentWordHor, x, y);
                 	this.setWordBackground(this.currentWordVer, x, y);
                 }else{
@@ -341,8 +290,8 @@ public class GameActivity extends CrosswordParentActivity implements OnTouchList
 	    for (Word entry: this.entries) {
 	    	if (x >= entry.getX() && x <= entry.getXMax())
 	    		if (y >= entry.getY() && y <= entry.getYMax()) {
-	    			System.out.println("entry.getHorizontal()..."+entry.getHorizontal());
-        	    	if (entry.getHorizontal())
+	    			System.out.println("entry.getHoriz()..."+entry.getHoriz());
+        	    	if (entry.getHoriz())
         	    		        	    		
         	    			horizontalWord = entry;
         	    		
@@ -406,17 +355,17 @@ public class GameActivity extends CrosswordParentActivity implements OnTouchList
 		this.gridAdapter.setDisValue(x, y,value);
 		this.gridAdapter.notifyDataSetChanged();
 		
-		//moudle.rightDisplay(this.currentWord,this.currentX, this.currentY, gridAdapter,this.isCross);
-		if(moudle.isCorrect(moudle.getWord(this.currentWord.getX(), this.currentWord.getY(), this.currentWord.getHorizontal()).getText(),gridAdapter.getWord(this.currentWord.getX(),this.currentWord.getY(),this.currentWord.getLength(), this.currentWord.getHorizontal())))
+		//module.rightDisplay(this.currentWord,this.currentX, this.currentY, gridAdapter,this.isCross);
+		if(module.isCorrect(module.getWord(this.currentWord.getX(), this.currentWord.getY(), this.currentWord.getHoriz()).getCap(),gridAdapter.getWord(this.currentWord.getX(),this.currentWord.getY(),this.currentWord.getLength(), this.currentWord.getHoriz())))
 	    {
 			  for(int l = 0; l < this.currentWord.getLength(); l++)
 			  {
-				if(this.currentWord.getHorizontal())  
+				if(this.currentWord.getHoriz())  
 				{
 					gridAdapter.setDisValue(currentWord.getX()+l, currentWord.getY(),currentWord.getAns(l));
 					//gridAdapter.setValue(currentWord.getX()+l, currentWord.getY(),currentWord.getAns(l));
 				}
-	            if(!this.currentWord.getHorizontal()) gridAdapter.setDisValue(currentWord.getX(), currentWord.getY()+l,currentWord.getAns(l));  
+	            if(!this.currentWord.getHoriz()) gridAdapter.setDisValue(currentWord.getX(), currentWord.getY()+l,currentWord.getAns(l));  
 	            
 	            this.gridAdapter.notifyDataSetChanged();
 			  }
@@ -424,19 +373,19 @@ public class GameActivity extends CrosswordParentActivity implements OnTouchList
 		if(this.isCross)
 		{		
 		
-			if(moudle.isCorrect(moudle.getWord(this.currentX, this.currentY, !currentWord.getHorizontal()).getText(),
-					gridAdapter.getWord(moudle.getWord(this.currentX, this.currentY, !currentWord.getHorizontal()).getX(),moudle.getWord(this.currentX, this.currentY, !currentWord.getHorizontal()).getY(), 
-							moudle.getWord(this.currentX, this.currentY, !currentWord.getHorizontal()).getLength(), 
-							moudle.getWord(this.currentX, this.currentY, !currentWord.getHorizontal()).getHorizontal())))
+			if(module.isCorrect(module.getWord(this.currentX, this.currentY, !currentWord.getHoriz()).getCap(),
+					gridAdapter.getWord(module.getWord(this.currentX, this.currentY, !currentWord.getHoriz()).getX(),module.getWord(this.currentX, this.currentY, !currentWord.getHoriz()).getY(), 
+							module.getWord(this.currentX, this.currentY, !currentWord.getHoriz()).getLength(), 
+							module.getWord(this.currentX, this.currentY, !currentWord.getHoriz()).getHoriz())))
 	    	{
-			  for(int l = 0; l < moudle.getWord(this.currentX, this.currentY, !currentWord.getHorizontal()).getLength(); l++)
+			  for(int l = 0; l < module.getWord(this.currentX, this.currentY, !currentWord.getHoriz()).getLength(); l++)
 			    {
-					if(!this.currentWord.getHorizontal())  {gridAdapter.setDisValue(moudle.getWord(this.currentX, this.currentY, !currentWord.getHorizontal()).getX()+l,moudle.getWord(this.currentX, this.currentY, !currentWord.getHorizontal()).getY(),moudle.getWord(this.currentX, this.currentY, !currentWord.getHorizontal()).getAns(l));
+					if(!this.currentWord.getHoriz())  {gridAdapter.setDisValue(module.getWord(this.currentX, this.currentY, !currentWord.getHoriz()).getX()+l,module.getWord(this.currentX, this.currentY, !currentWord.getHoriz()).getY(),module.getWord(this.currentX, this.currentY, !currentWord.getHoriz()).getAns(l));
 					 System.out.println("x:"+(currentX+l)+"y:"+currentY);
 				}
-	            if(this.currentWord.getHorizontal())
+	            if(this.currentWord.getHoriz())
 	            {
-	            	gridAdapter.setDisValue(moudle.getWord(this.currentX, this.currentY, !currentWord.getHorizontal()).getX(),moudle.getWord(this.currentX, this.currentY, !currentWord.getHorizontal()).getY()+l,moudle.getWord(this.currentX, this.currentY, !currentWord.getHorizontal()).getAns(l));  
+	            	gridAdapter.setDisValue(module.getWord(this.currentX, this.currentY, !currentWord.getHoriz()).getX(),module.getWord(this.currentX, this.currentY, !currentWord.getHoriz()).getY()+l,module.getWord(this.currentX, this.currentY, !currentWord.getHoriz()).getAns(l));  
 	            	 System.out.println("x:"+currentX+"y:"+(currentY+l));
 	            }
 	      
@@ -469,16 +418,16 @@ public class GameActivity extends CrosswordParentActivity implements OnTouchList
 		
 		this.isCross = this.gridAdapter.isCross(currentX, currentY);
        
-		currentWord = moudle.getWord(currentX,currentY,this.horizontal);
+		currentWord = module.getWord(currentX,currentY,this.horizontal);
 		  
           
-          this.horizontal = this.currentWord.getHorizontal();
+          this.horizontal = this.currentWord.getHoriz();
         //在设置背景之前先重绘一遍
         this.gridAdapter.reDrawGridBackground(this.gridView);
         if(this.isCross){
         	
-        	this.currentWordHor = moudle.getWord(currentX, currentY, true);
-        	this.currentWordVer = moudle.getWord(currentX, currentY, false);
+        	this.currentWordHor = module.getWord(currentX, currentY, true);
+        	this.currentWordVer = module.getWord(currentX, currentY, false);
         	
         	this.setWordBackground(this.currentWordHor, currentX, currentY);
         	this.setWordBackground(this.currentWordVer, currentX, currentY);
@@ -495,75 +444,6 @@ public class GameActivity extends CrosswordParentActivity implements OnTouchList
 	
 	
 	
-	/*有问题，怎么添加进去，直接考虑json吧
-	 * */
-    private void save() {
-		// writre new XML file
-    	// moudle.save()
-
-    	StringBuffer wordHorizontal = new StringBuffer();
-    	StringBuffer wordVertical = new StringBuffer();
-	    for (Word entry: this.entries) {
-	    	int x = entry.getX();
-	    	int y = entry.getY();
-    	    String word = String.format(
-    	    		"<word  x=\"%d\" y=\"%d\" description=\"%s\" tmp=\"%s\" >%s</word>\n",
-    	    		x,
-    	    		y,
-    	    		entry.getDescription(),
-    	    		this.gridAdapter.getWord(x, y, entry.getLength(), entry.getHorizontal()),
-    	    		//entry.getAns()
-    	    		entry.getText());
-    	    if (entry.getHorizontal())
-    	    	wordHorizontal.append(word);
-    	    else
-    	    	wordVertical.append(word);
-	    }
-
-    	StringBuffer sb = new StringBuffer();
-		sb.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
-		sb.append("<grid>\n");
-		sb.append("<name>" + grid.getName() + "</name>\n");
-		sb.append("<description>" + grid.getDescription() + "</description>\n");
-		if (this.grid.getDate() != null)
-			sb.append("<date>" + new SimpleDateFormat("dd/MM/yyyy").format(grid.getDate()) + "</date>\n");
-		sb.append("<author>" + grid.getAuthor() + "</author>\n");
-		sb.append("<level>" + grid.getLevel() + "</level>\n");
-		sb.append("<percent>" + gridAdapter.getPercent()+"</percent>\n");
-		sb.append("<width>" + this.width + "</width>\n");
-		sb.append("<height>" + this.height + "</height>\n");
-		sb.append("<horizontal>\n");
-		sb.append(wordHorizontal);
-		sb.append("</horizontal>\n");
-		sb.append("<vertical>\n");
-		sb.append(wordVertical);
-		sb.append("</vertical>\n");
-		sb.append("</grid>\n");
-		
-		// Make directory if not exists
-		File directory = new File(Crossword.GRID_DIRECTORY);
-		if (directory.exists() == false)
-			directory.mkdir();
-		
-		// Write XML
-		FileWriter file;
-		try {
-			file = new FileWriter(String.format(Crossword.GRID_LOCAL_PATH, this.filename));
-			file.write(sb.toString());
-			file.close();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-
-		System.out.println(sb);
-	}
-    
-
-	/*@Override
-	public void setDraft(boolean value) {
-		this.gridAdapter.setDraft(value);
-	}
-*/
 	
 
 	
@@ -575,7 +455,7 @@ public class GameActivity extends CrosswordParentActivity implements OnTouchList
 		
 		int x = word.getX();
 		int y = word.getY();
-		boolean horizontal = word.getHorizontal();
+		boolean horizontal = word.getHoriz();
 		int currIndex = currY*this.width + currX;
 	
 		for(int l = 0;l<word.getLength();l++){
@@ -592,10 +472,10 @@ public class GameActivity extends CrosswordParentActivity implements OnTouchList
 	
 	//设置描述信息
 	public void setDescription(Word currentWordHor,Word currentWordVer,Word currentWord){//设置提示信息
-		  String descriptionHor = isCross?"横向:"+this.currentWordHor.getDescription():
-              (this.horizontal?"横向:"+currentWord.getDescription():"");
-          String descriptionVer = isCross?"纵向:"+this.currentWordVer.getDescription():
-              (this.horizontal?"":"纵向:"+currentWord.getDescription());
+		  String descriptionHor = isCross?"横向:"+this.currentWordHor.getDesc():
+              (this.horizontal?"横向:"+currentWord.getDesc():"");
+          String descriptionVer = isCross?"纵向:"+this.currentWordVer.getDesc():
+              (this.horizontal?"":"纵向:"+currentWord.getDesc());
 
           this.txtDescriptionHor.setText(descriptionHor);
           this.txtDescriptionVer.setText(descriptionVer);

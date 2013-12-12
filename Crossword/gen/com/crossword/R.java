@@ -76,7 +76,7 @@ public final class R {
     }
     public static final class id {
         public static final int author=0x7f0a000d;
-        public static final int buttonA=0x7f0a0014;
+        public static final int buttonA=0x7f0a001f;
         public static final int buttonB=0x7f0a002d;
         public static final int buttonC=0x7f0a002b;
         public static final int buttonD=0x7f0a0021;
@@ -94,31 +94,31 @@ public final class R {
         public static final int buttonN=0x7f0a002e;
         public static final int buttonO=0x7f0a001c;
         public static final int buttonP=0x7f0a001d;
-        public static final int buttonQ=0x7f0a001f;
+        public static final int buttonQ=0x7f0a0014;
         public static final int buttonR=0x7f0a0017;
         public static final int buttonS=0x7f0a0020;
         public static final int buttonT=0x7f0a0018;
         public static final int buttonU=0x7f0a001a;
         public static final int buttonV=0x7f0a002c;
-        public static final int buttonW=0x7f0a0029;
+        public static final int buttonW=0x7f0a0015;
         public static final int buttonX=0x7f0a002a;
         public static final int buttonY=0x7f0a0019;
-        public static final int buttonZ=0x7f0a0015;
+        public static final int buttonZ=0x7f0a0029;
         public static final int button_category=0x7f0a0036;
         public static final int button_last=0x7f0a0032;
         public static final int button_list=0x7f0a0034;
         public static final int button_search=0x7f0a0038;
         public static final int date=0x7f0a000e;
         public static final int description=0x7f0a000b;
-        public static final int description_horizotal=0x7f0a0007;
-        public static final int description_vertical=0x7f0a0008;
+        public static final int description_horizotal=0x7f0a0006;
+        public static final int description_vertical=0x7f0a0007;
         public static final int feed_message=0x7f0a0004;
         public static final int feed_send=0x7f0a0005;
         public static final int frameLayout1=0x7f0a0031;
         public static final int frameLayout2=0x7f0a0033;
         public static final int frameLayout3=0x7f0a0035;
         public static final int frameLayout4=0x7f0a0037;
-        public static final int grid=0x7f0a0006;
+        public static final int grid=0x7f0a0008;
         public static final int gridListMessage=0x7f0a0010;
         public static final int gridListView=0x7f0a0011;
         public static final int keyboard=0x7f0a0009;

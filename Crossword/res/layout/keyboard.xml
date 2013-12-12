@@ -11,20 +11,20 @@
         android:layout_weight="1" >
 
         <Button
-            android:id="@+id/buttonA"
+            android:id="@+id/buttonQ"
             style="@style/KeyboardButtonNormal"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_weight="1"
-            android:text="A" />
+            android:text="Q" />
 
         <Button
-            android:id="@+id/buttonZ"
+            android:id="@+id/buttonW"
             style="@style/KeyboardButtonNormal"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_weight="1"
-            android:text="Z" />
+            android:text="W" />
 
         <Button
             android:id="@+id/buttonE"
@@ -100,12 +100,12 @@
         android:paddingRight="15dp" >
 
         <Button
-            android:id="@+id/buttonQ"
+            android:id="@+id/buttonA"
             style="@style/KeyboardButtonNormal"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_weight="1"
-            android:text="Q" />
+            android:text="A" />
 
         <Button
             android:id="@+id/buttonS"
@@ -188,12 +188,12 @@
             android:src="@drawable/keyboard_draft" />
 
         <Button
-            android:id="@+id/buttonW"
+            android:id="@+id/buttonZ"
             style="@style/KeyboardButtonNormal"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_weight="1"
-            android:text="W" />
+            android:text="Z" />
 
         <Button
             android:id="@+id/buttonX"

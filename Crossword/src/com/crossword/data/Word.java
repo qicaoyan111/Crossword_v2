@@ -42,8 +42,14 @@ public class Word {
 	
 	
 	
+	public void     setDesc(String desc){this.desc = desc;}
+	public String   getDesc(){return this.desc;}
 	
+	public void     setTmp(String tmp){this.tmp = tmp;}
+	public String   getTmp(){return this.tmp;}
 	
+	public void     setMask(String mask){this.mask = mask;}
+	public String   getMask(){return this.mask;}
 	
 	public void     setChi(String chi){this.chi = chi;}//ÉèÖÃºº×Ö
 	public String   getChi(){return this.chi;}//»ñÈ¡ºº×Ö
@@ -62,9 +68,10 @@ public class Word {
 	public int      getY(){return this.y;}
 	public int      getYMax(){return this.horiz?this.y:this.y + this.len - 1;}
 	
+	public void     setLength(int len){this.len = len;}
 	public int      getLength(){return this.len;}
 	
-	
+	public String   getAns(int l){return this.chi.substring(l,l+1);}
 	/*
 	public void		setText(String value) { this.text = value; this.length = value.length(); }
 	public String	getText() { return this.text; }
